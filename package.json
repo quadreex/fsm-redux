@@ -1,26 +1,34 @@
 {
-  "name": "redux-fsm",
-  "version": "0.0.1",
+  "name": "fsm-redux",
+  "version": "0.0.2",
   "description": "Lightweight library for Finite State Machine support in Redux applications",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "nyc tape \"__test__/**/*.test.js\" | tap-spec",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "prepublish": "npm test"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/quadreex/redux-fsm.git"
+    "url": "git+ssh://git@github.com/quadreex/fsm-redux.git"
   },
   "keywords": [
     "FSM",
+    "finite",
+    "state",
+    "machine",
     "redux"
   ],
   "author": "Denis Rodin",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/quadreex/redux-fsm/issues"
+    "url": "https://github.com/quadreex/fsm-redux/issues"
   },
-  "homepage": "https://github.com/quadreex/redux-fsm#readme",
+  "homepage": "https://github.com/quadreex/fsm-redux#readme",
   "devDependencies": {
+    "coveralls": "^2.13.1",
+    "nyc": "^11.2.1",
+    "sinon": "^3.2.1",
     "tap-spec": "^4.1.1",
     "tape": "^4.8.0"
   }
