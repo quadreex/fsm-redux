@@ -10,6 +10,7 @@ Lightweight library for Finite State Machine support in Redux applications. This
 
 ```javascript
 var params = {
+    statusKey: 'status', // name of field that will hold current state (optional parameter)
     initial: 'INIT', // name of initial state
     states: {
       'INIT': {

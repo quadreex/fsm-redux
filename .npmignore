@@ -1,0 +1,6 @@
+.git/
+.idea/
+__test__/
+coverage/
+.nyc_output/
+npm-debug.log

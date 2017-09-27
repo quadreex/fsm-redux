@@ -1,12 +1,15 @@
 {
   "name": "fsm-redux",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Lightweight library for Finite State Machine support in Redux applications",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "jsnext:main": "src/index.js",
   "scripts": {
-    "test": "nyc tape \"__test__/**/*.test.js\" | tap-spec",
+    "test": "nyc tape -r babel-register \"__test__/**/*.test.js\" | tap-spec",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "prepublish": "npm test"
+    "compile": "babel src -d dist",
+    "build": "npm test && npm run compile",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -26,6 +29,10 @@
   },
   "homepage": "https://github.com/quadreex/fsm-redux#readme",
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
+    "babel-register": "^6.26.0",
     "coveralls": "^2.13.1",
     "nyc": "^11.2.1",
     "sinon": "^3.2.1",

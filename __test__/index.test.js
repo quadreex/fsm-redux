@@ -1,9 +1,10 @@
-var test = require('tape');
-var sinon = require('sinon');
-var createFSM = require('../index').createFSM;
+import test from 'tape';
+import sinon from 'sinon';
+import createFSM from '../src/index';
 
-test('FSM', function(t) {
-  var params = {
+test('FSM', t => {
+  const params = {
+    statusKey: 'status',
     initial: 'INIT',
     states: {
       'INIT': {
@@ -34,12 +35,13 @@ test('FSM', function(t) {
     }
   };
 
-  var fsm = createFSM(params, { foo: 'bar' });
-  fsm();
-  var EXPECTED_INITIAL_STATE = {
+  const fsm = createFSM(params, { foo: 'bar' });
+  const EXPECTED_INITIAL_STATE = {
     foo: 'bar',
-    __state: 'INIT'
+    [params.statusKey]: params.initial
   };
+
+  fsm();
 
   t.ok(
     params.states.INIT.reducer.calledOnce,
@@ -63,10 +65,10 @@ test('FSM', function(t) {
     'reducer for state 4 should not be called during init'
   );
 
-  var state = fsm(null, { type: 'LOAD_ACTION' });
+  let state = fsm(void 0, { type: 'LOAD_ACTION' });
 
   t.equal(
-    state.__state,
+    state[params.statusKey],
     'LOADING',
     'should switch state'
   );
@@ -114,7 +116,7 @@ test('FSM', function(t) {
   state = fsm(state, { type: 'LOAD_ACTION' });
 
   t.equal(
-    state.__state,
+    state[params.statusKey],
     'LOADING',
     'should not switch state'
   );
@@ -138,7 +140,7 @@ test('FSM', function(t) {
   state = fsm(state, { type: 'LOAD_FAIL_ACTION' });
 
   t.equal(
-    state.__state,
+    state[params.statusKey],
     'LOADING_FAILURE',
     'should switch state'
   );
@@ -181,7 +183,7 @@ test('FSM', function(t) {
   t.end();
 });
 
-test('FSM - wrong params handling', function(t) {
+test('FSM - wrong params handling', t => {
 
   t.throws(function() {
     createFSM(null, { foo: 'bar' });
