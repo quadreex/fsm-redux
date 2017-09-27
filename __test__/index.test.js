@@ -8,26 +8,26 @@ test('FSM', t => {
     initial: 'INIT',
     states: {
       'INIT': {
-        reducer: sinon.spy(),
+        reducer: state => state,
         accepts: {
           'LOAD_ACTION': 'LOADING'
         }
       },
       'LOADING': {
-        reducer: sinon.spy(),
+        reducer: state => state,
         accepts: {
           'LOAD_DONE_ACTION': 'LOADING_SUCCESS',
           'LOAD_FAIL_ACTION': 'LOADING_FAILURE'
         }
       },
       'LOADING_SUCCESS': {
-        reducer: sinon.spy(),
+        reducer: state => state,
         accepts: {
           'LOAD_ACTION': 'LOADING'
         }
       },
       'LOADING_FAILURE': {
-        reducer: sinon.spy(),
+        reducer: state => state,
         accepts: {
           'LOAD_ACTION': 'LOADING'
         }
@@ -35,22 +35,27 @@ test('FSM', t => {
     }
   };
 
+  sinon.spy(params.states.INIT, 'reducer');
+  sinon.spy(params.states.LOADING, 'reducer');
+  sinon.spy(params.states.LOADING_SUCCESS, 'reducer');
+  sinon.spy(params.states.LOADING_FAILURE, 'reducer');
+
   const fsm = createFSM(params, { foo: 'bar' });
   const EXPECTED_INITIAL_STATE = {
     foo: 'bar',
     [params.statusKey]: params.initial
   };
 
-  fsm();
+  let state = fsm();
 
   t.ok(
     params.states.INIT.reducer.calledOnce,
     'reducer for initial state should be called during init'
   );
   t.deepEqual(
-    params.states.INIT.reducer.getCall(0).args[0],
+    state,
     EXPECTED_INITIAL_STATE,
-    'should set correct initial state'
+    'should return initial state'
   );
   t.notOk(
     params.states.LOADING.reducer.called,
@@ -65,7 +70,7 @@ test('FSM', t => {
     'reducer for state 4 should not be called during init'
   );
 
-  let state = fsm(void 0, { type: 'LOAD_ACTION' });
+  state = fsm(state, { type: 'LOAD_ACTION' });
 
   t.equal(
     state[params.statusKey],
@@ -76,9 +81,9 @@ test('FSM', t => {
     params.states.INIT.reducer.calledOnce,
     'reducer for state 1 should not be called during state change'
   );
-  t.notOk(
-    params.states.LOADING.reducer.called,
-    'reducer for state 2 should not be called during state change'
+  t.ok(
+    params.states.LOADING.reducer.calledOnce,
+    'reducer for state 2 should be called during state change'
   );
   t.notOk(
     params.states.LOADING_FAILURE.reducer.called,
@@ -96,11 +101,11 @@ test('FSM', t => {
     'reducer for state 1 should not be called for action'
   );
   t.ok(
-    params.states.LOADING.reducer.calledOnce,
+    params.states.LOADING.reducer.calledTwice,
     'reducer for state 2 should be called for action'
   );
   t.deepEqual(
-    params.states.LOADING.reducer.getCall(0).args[1],
+    params.states.LOADING.reducer.getCall(1).args[1],
     { type: 'SOME_OTHER_ACTION' },
     'reducer for state 2 should be called with proper action'
   );
@@ -125,8 +130,8 @@ test('FSM', t => {
     'reducer for state 1 should not be called for not accepted action'
   );
   t.ok(
-    params.states.LOADING.reducer.calledOnce,
-    'reducer for state 2 should not be called for not accepted action'
+    params.states.LOADING.reducer.calledThrice,
+    'reducer for state 2 should be called for not accepted action'
   );
   t.notOk(
     params.states.LOADING_FAILURE.reducer.called,
@@ -149,12 +154,12 @@ test('FSM', t => {
     'reducer for state 1 should not be called for accepted action'
   );
   t.ok(
-    params.states.LOADING.reducer.calledOnce,
+    params.states.LOADING.reducer.calledThrice,
     'reducer for state 2 should not be called for accepted action'
   );
-  t.notOk(
-    params.states.LOADING_FAILURE.reducer.called,
-    'reducer for state 3 should not be called for accepted action'
+  t.ok(
+    params.states.LOADING_FAILURE.reducer.calledOnce,
+    'reducer for state 3 should be called for accepted action'
   );
   t.notOk(
     params.states.LOADING_SUCCESS.reducer.called,
@@ -168,11 +173,11 @@ test('FSM', t => {
     'reducer for state 1 should not be called for action'
   );
   t.ok(
-    params.states.LOADING.reducer.calledOnce,
+    params.states.LOADING.reducer.calledThrice,
     'reducer for state 2 should not be called for action'
   );
   t.ok(
-    params.states.LOADING_FAILURE.reducer.calledOnce,
+    params.states.LOADING_FAILURE.reducer.calledTwice,
     'reducer for state 3 should be called for action'
   );
   t.notOk(

@@ -4,7 +4,6 @@ export default function createFSM(params, initState) {
   if (!params.initial) throw new TypeError('Initial FSM state is not specified');
 
   const status = params.statusKey || '__status';
-  const actions = getActions(params.states);
   const initialState = {
     ...initState,
     [status]: params.initial
@@ -12,42 +11,19 @@ export default function createFSM(params, initState) {
 
   return (state = initialState, action = {}) => {
     const currentStatus = params.states[state[status]];
-    const reducer = currentStatus.reducer;
+    const next = currentStatus.accepts[action.type];
+    const reducer = !next
+      ? currentStatus.reducer
+      : params.states[next].reducer;
 
     if (typeof reducer !== 'function') {
-      throw new Error(`FSM: missing reducer for state '${state[status]}'`)
+      throw new Error(`FSM: missing reducer for state '${next || state[status]}'`);
     }
 
-    let next;
-    if (next = currentStatus.accepts[action.type]) {
-      return {
-        ...state,
-        [status]: next
-      };
-    }
+    const newState = reducer(state, action);
 
-    if (actions.indexOf(action.type) !== -1) {
-      return state;
-    }
-
-    return reducer(state, action);
+    return next ? { ...newState, [status]: next } : newState;
   };
-}
-
-function getActions(states) {
-  const actions = Object.keys(states).reduce((acc, key) => {
-    const actions = states[key].accepts;
-
-    if (actions) {
-      Object.keys(actions).forEach(a => {
-        acc[a] = true;
-      });
-    }
-
-    return acc;
-  }, {});
-
-  return Object.keys(actions);
 }
 
 function isObject(obj) {
